@@ -109,6 +109,8 @@ const criarBanco = async () => {
         telefone TEXT NOT NULL,
         email TEXT,
         endereco TEXT NOT NULL
+        equipe_id INTEGER,
+        FOREIGN KEY (equipe_id) REFERENCES cadastroEquipes(id)
         )
         `
     );
