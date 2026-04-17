@@ -10,45 +10,111 @@ const criarBanco = async () => {
         driver: sqlite3.Database
     });
 
+    await db.exec("PRAGMA foreign_keys = ON;");
 
-    // == TABELA: INSCRICOES
+
+    // == == == == == == == == == == == ==
+    // == TABELAS CADASTRAIS PRIMARIAS
+    // == == == == == == == == == == == ==
+
     await db.exec(
         `
-        CREATE TABLE IF NOT EXISTS inscricao(
+        CREATE TABLE IF NOT EXISTS cadastroOcorrencias (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        telefone TEXT,
-        email TEXT,
-        endereco TEXT,
-        atuacao_desejada TEXT,
-        status_aprovacao TEXT DEFAULT "Em análise"
+        titulo TEXT NOT NULL,
+        instituicao TEXT,
+        endereco TEXT NOT NULL,
+        descricao TEXT NOT NULL,
+        vagas INTEGER,
+        status TEXT DEFAULT "Em Análise"
         )
         `
     );
-    console.log("Tabela de incrições criada com sucesso!");
+    console.log("Tabela de ocorrencias criada com sucesso!");
 
-
-    const checagemDeInscricoes = await db.get(
+    await db.exec(
         `
-        SELECT COUNT (*) AS totalDeInscricoes FROM inscricao
+        CREATE TABLE IF NOT EXISTS cadastroEquipes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        descricao TEXT NOT NULL
+        )
         `
     );
-    if(checagemDeInscricoes.totalDeInscricoes === 0){
+    console.log("Tabela de equipes criada com sucesso!");
 
-        await db.exec(
-            `
-            INSERT INTO inscricao (nome, telefone, email, endereco, atuacao_desejada) VALUES
-            ("TESTE A","TESTE B","TESTE C","TESTE D","TESTE E")
-            `
-        );
 
-    }else{
-        console.log(
-            `
-            Banco pronto com total de ${checagemDeInscricoes.totalDeInscricoes} inscrição(s)!
-            `
-        );
-    };
+    // == == == == == == == == == == == ==
+    // == TABELAS CADASTRAIS SEGUNDARIAS
+    // == == == == == == == == == == == ==
+
+    await db.exec(
+        `
+        CREATE TABLE IF NOT EXISTS cadastroGrupos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        equipe_id INTEGER NOT NULL,
+        descricao TEXT NOT NULL,
+        FOREIGN KEY (equipe_id) REFERENCES cadastroEquipes(id)
+        )
+        `
+    );
+    console.log("Tabela de grupos criada com sucesso!");
+
+
+    // == == == == == == == == == == == ==
+    // == TABELAS CADASTRAIS TERCIARIAS
+    // == == == == == == == == == == == ==
+
+    await db.exec(
+        `
+        CREATE TABLE IF NOT EXISTS cadastroCoordenadores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        cpf TEXT UNIQUE NOT NULL,
+        telefone TEXT NOT NULL,
+        email TEXT NOT NULL,
+        endereco TEXT NOT NULL,
+        equipe_id INTEGER,
+        FOREIGN KEY (equipe_id) REFERENCES cadastroEquipes(id)
+        )
+        `
+    );
+    console.log("Tabela de coordenadores criada com sucesso!");
+
+    await db.exec(
+        `
+        CREATE TABLE IF NOT EXISTS cadastroInstrutores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        cpf TEXT UNIQUE NOT NULL,
+        telefone TEXT NOT NULL,
+        email TEXT NOT NULL,
+        endereco TEXT NOT NULL,
+        equipe_id INTEGER,
+        grupo_id INTEGER,
+        FOREIGN KEY (equipe_id) REFERENCES cadastroEquipes(id),
+        FOREIGN KEY (grupo_id) REFERENCES cadastroGrupos(id)
+        )
+        `
+    );
+    console.log("Tabela de instrutores criada com sucesso!");
+
+    await db.exec(
+        `
+        CREATE TABLE IF NOT EXISTS cadastroVoluntarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        cpf TEXT UNIQUE NOT NULL,
+        telefone TEXT NOT NULL,
+        email TEXT,
+        endereco TEXT NOT NULL
+        )
+        `
+    );
+    console.log("Tabela de voluntarios criada com sucesso!");
+
+
 };
 
 criarBanco();
