@@ -1,5 +1,6 @@
 // == Importações
 const express = require("express");
+
 const {criarBanco} = require("./database");
 
 const cors = require("cors");
@@ -25,11 +26,7 @@ app.get("/", (req, res) => {
     );
 });
 
-const PORT = 3000;
-
-app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
+// == Funções
 
 app.get("/coordenadores", async (req, res) => {
     const db = await criarBanco();
@@ -629,4 +626,12 @@ app.delete("/murais/:id", async (req, res) => {
     );
 
     res.send(`Cadastro do mural ${id} excluido com sucesso`);
+});
+
+// == PORTA DO SITE
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
